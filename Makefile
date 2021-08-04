@@ -12,9 +12,8 @@ $(EXEC): $(OBJS)
 
 %.o: %.cpp
 	$(info Linking..)	
-	g++ -c $< -I$(LIBS) -o $@
+	g++ -c $< -I$(LIBS) -o $@ -O2
 
 .PHONY: clean
 clean:
 	rm -f *.o
-	rm ray.ppm
