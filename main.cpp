@@ -20,6 +20,7 @@ double hit_sphere(const point3 &center, double radius, const ray &r){
     }
 
 }
+
 color ray_color(const ray& r) {
     auto t = hit_sphere(point3(0, 0, -1), 0.5, r);
     if(t > 0.0){
@@ -34,22 +35,25 @@ color ray_color(const ray& r) {
 int main(){
     
     std::ofstream img_file("ray.ppm", std::ofstream::out);
-    
+
     // Image here
-    const auto aspect_ratio = 16.0/9.0;
-    const int img_width = 1000; 
+    const auto aspect_ratio = 16.0/9.0; // width/height
+    const int img_width = 1280; 
     const int img_height = static_cast<int>(img_width / aspect_ratio); 
 
-    // Camera here
+    // Scene here
     
-    auto viewport_height = 2.0;
-    auto viewport_width = aspect_ratio * viewport_height;
-    auto focal_length = 1.0;
+    auto viewport_height = 2.0; // height of the scene
+    auto viewport_width = aspect_ratio * viewport_height; // width of  the scene
+    auto focal_length = 1.0; // distance from the camera to the 'scene'
 
+    
     auto origin = point3(0, 0, 0);
     auto horizontal = vec3(viewport_width, 0, 0);
     auto vertical = vec3(0, viewport_height, 0);
-    auto lower_left_corner = origin - horizontal/2 - vertical/2 - vec3(0 ,0, focal_length);
+
+    //from the center of the scene, walk half the size of its width and height to end up on the lower left corner
+    auto lower_left_corner = origin - horizontal/2 - vertical/2 - vec3(0 ,0, focal_length); 
 
     // Rendering here
     img_file<<"P3\n"<< img_width << " " << img_height<<"\n255\n";
@@ -59,8 +63,10 @@ int main(){
         for(int j = 0; j < img_width; j++){
             auto u = double(j) / (img_width-1); 
             auto v = double(i) / (img_height-1); 
+            // moving the ray of light from left to right, bottom to top 
             ray r(origin, lower_left_corner + u*horizontal + v*vertical - origin);
             
+            // get a pixel color based on the current ray and write it 
             color pixel_color = ray_color(r);
             write_color(img_file, pixel_color);
         }
