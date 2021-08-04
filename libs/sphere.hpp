@@ -1,20 +1,21 @@
 #ifndef SPHERE_HPP
 #define SPHERE_HPP
 
-#include "hittable.hpp"
+#include "material.hpp"
 #include "vec3.hpp"
 
 
 class sphere : public hittable {
     public:
         sphere() {}
-        sphere(point3 cen, double r) : center(cen), radius(r) {};
+        sphere(point3 cen, double r, shared_ptr<material> m) : center(cen), radius(r), mat_ptr(m) {};
 
         virtual bool hit(
             const ray &r, double t_min, double t_max, hit_record &rec) const override;
     public:
         point3 center;
         double radius;
+        shared_ptr<material> mat_ptr;
 };
 
 bool sphere::hit(const ray &r, double t_min, double t_max, hit_record &rec) const {
@@ -38,8 +39,28 @@ bool sphere::hit(const ray &r, double t_min, double t_max, hit_record &rec) cons
     rec.p = r.at(rec.t);
     vec3 outward_normal = (rec.p - center) / radius;
     rec.set_face_normal(r, outward_normal);
-    
+    rec.mat_ptr = mat_ptr;
+
     return true;
 }
+
+class lambertian : public material {
+    public:
+        lambertian(const color &a) : albedo(a) {}
+
+        virtual bool scatter(
+            const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered
+        ) const override {
+            auto scatter_direction = rec.normal + random_unit_vector();
+
+            if(scatter_direction.near_zero())
+                scatter_direction = rec.normal;
+            scattered = ray(rec.p, scatter_direction);
+            attenuation = albedo;
+            return true;
+        }
+    public: 
+        color albedo;
+};
 
 #endif

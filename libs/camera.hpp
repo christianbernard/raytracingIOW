@@ -2,6 +2,7 @@
 #define CAMERA_HPP
 
 #include "rtweekend.hpp"
+#include "ray.hpp"
 
 class camera {
     public:
